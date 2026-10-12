@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HousePriceAI — Deep Learning Price Predictor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════ NAVBAR ══════════════════════════ -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-title">HousePriceAI</span>
+    <span class="nav-badge">Joint Self-Attention DL</span>
+  </div>
+  <div class="nav-links">
+    <a href="#predictor" class="nav-link active">Predictor</a>
+    <a href="#dashboard" class="nav-link">Dashboard</a>
+    <a href="#model-info" class="nav-link">Model</a>
+    <a href="#training" class="nav-link">Training</a>
+  </div>
+  <div class="nav-status">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking...</span>
+  </div>
+</nav>
+
+<!-- ══════════════════════════ HERO ══════════════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>House Price Prediction</h1>
+      <p class="hero-subtitle">Powered by Deep Learning with <strong>Joint Self-Attention Mechanism</strong></p>
+      <p class="hero-desc">
+        Heterogeneous data fusion: numerical features + categorical embeddings analyzed via
+        intra-modality self-attention and inter-modality cross-attention for precise valuation.
+      </p>
+      <div class="hero-tags">
+        <span class="tag">PyTorch</span>
+        <span class="tag">Self-Attention</span>
+        <span class="tag">Cross-Attention</span>
+        <span class="tag">Feature Embeddings</span>
+        <span class="tag">Flask API</span>
+      </div>
+    </div>
+    <div class="hero-arch">
+      <div class="arch-diagram">
+        <div class="arch-row">
+          <div class="arch-box num-box">📊 Numerical<br/><small>17 features</small></div>
+          <div class="arch-box cat-box">🏷️ Categorical<br/><small>6 embeddings</small></div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box attn-box">🔄 Self-Attention<br/><small>Intra-modal</small></div>
+          <div class="arch-box attn-box">🔄 Self-Attention<br/><small>Intra-modal</small></div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box cross-box full-width">⚡ Joint Cross-Attention<br/><small>Inter-modal Fusion</small></div>
+        </div>
+        <div class="arch-row">
+          <div class="arch-box head-box full-width">🧠 MLP Regression Head → 💲 Price</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ PREDICTOR ══════════════════════════ -->
+<section id="predictor" class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>🔮 House Price Predictor</h2>
+      <p>Fill in the property details to get an AI-powered valuation</p>
+    </div>
+
+    <div class="predictor-layout">
+      <!-- FORM -->
+      <div class="form-card">
+        <form id="predictionForm">
+          <!-- Location -->
+          <div class="form-group-title">📍 Location Details</div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>State / Union Territory</label>
+              <select name="city" id="city" onchange="updateAreas()">
+                <optgroup label="── States ──">
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra" selected>Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                </optgroup>
+                <optgroup label="── Union Territories ──">
+                  <option value="Delhi">Delhi (NCT)</option>
+                  <option value="Chandigarh">Chandigarh</option>
+                  <option value="Puducherry">Puducherry</option>
+                  <option value="Jammu &amp; Kashmir">Jammu &amp; Kashmir</option>
+                  <option value="Ladakh">Ladakh</option>
+                  <option value="Lakshadweep">Lakshadweep</option>
+                  <option value="Andaman &amp; Nicobar">Andaman &amp; Nicobar</option>
+                  <option value="Dadra &amp; Nagar Haveli">Dadra &amp; Nagar Haveli</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Locality / Area</label>
+              <select name="neighborhood" id="neighborhood">
+                <option value="Baner">Baner</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Distance to City Centre (km)</label>
+              <input type="range" name="distance_cbd" id="distance_cbd" min="0.5" max="40" step="0.5" value="8" oninput="updateSlider(this,'distVal')" />
+              <span class="slider-val" id="distVal">8 km</span>
+            </div>
+            <div class="form-group">
+              <label>Walk Score (0-100)</label>
+              <input type="range" name="walk_score" id="walk_score" min="0" max="100" step="1" value="65" oninput="updateSlider(this,'walkVal')" />
+              <span class="slider-val" id="walkVal">65</span>
+            </div>
+          </div>
+
+          <!-- Property -->
+          <div class="form-group-title">🏡 Property Details</div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Property Type</label>
+              <select name="property_type" id="property_type">
+                <option value="Apartment" selected>Apartment</option>
+                <option value="Independent House">Independent House</option>
+                <option value="Villa">Villa</option>
+                <option value="Builder Floor">Builder Floor</option>
+                <option value="Penthouse">Penthouse</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Condition</label>
+              <select name="condition" id="condition">
+                <option value="Excellent">Excellent</option>
+                <option value="Good" selected>Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Parking Type</label>
+              <select name="garage_type" id="garage_type">
+                <option value="Covered Parking" selected>Covered Parking</option>
+                <option value="Open Parking">Open Parking</option>
+                <option value="None">None</option>
+                <option value="Basement Parking">Basement Parking</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>School / Area Rating</label>
+              <select name="school_rating" id="school_rating">
+                <option value="A+">A+</option>
+                <option value="A">A</option>
+                <option value="B+">B+</option>
+                <option value="B" selected>B</option>
+                <option value="C+">C+</option>
+                <option value="C">C</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Size & Structure -->
+          <div class="form-group-title">📐 Size & Structure</div>
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label>Built-up Area (sq.ft.)</label>
+              <input type="number" name="sqft" id="sqft" value="1400" min="400" max="10000" />
+            </div>
+            <div class="form-group">
+              <label>Bedrooms (BHK)</label>
+              <select name="bedrooms" id="bedrooms">
+                <option value="1">1 BHK</option>
+                <option value="2">2 BHK</option>
+                <option value="3" selected>3 BHK</option>
+                <option value="4">4 BHK</option>
+                <option value="5">5 BHK</option>
+                <option value="6">6 BHK</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Bathrooms</label>
+              <select name="bathrooms" id="bathrooms">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Plot Size (sq.ft.)</label>
+              <input type="number" name="lot_size" id="lot_size" value="2000" min="500" max="20000" />
+            </div>
+            <div class="form-group">
+              <label>Floors / Storey</label>
+              <select name="floors" id="floors">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year Built</label>
+              <input type="number" name="year_built" id="year_built" value="2010" min="1970" max="2024" />
+            </div>
+          </div>
+
+          <!-- Amenities & Safety -->
+          <div class="form-group-title">✨ Amenities & Safety</div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Crime Rate (1=Low, 10=High)</label>
+              <input type="range" name="crime_rate" id="crime_rate" min="1" max="10" step="0.5" value="3" oninput="updateSlider(this,'crimeVal')" />
+              <span class="slider-val" id="crimeVal">3.0</span>
+            </div>
+            <div class="form-group">
+              <label>Renovation Year</label>
+              <input type="number" name="renovation_year" id="renovation_year" value="2015" min="1990" max="2024" />
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="has_pool" id="has_pool" value="1" />
+                <span class="checkmark"></span>
+                🏊 Swimming Pool
+              </label>
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" name="has_basement" id="has_basement" value="1" checked />
+                <span class="checkmark"></span>
+                🏚️ Basement / Cellar
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="predict-btn" id="predictBtn">
+            <span class="btn-icon">🔮</span>
+            <span class="btn-text">Predict House Price</span>
+            <span class="btn-spinner" id="btnSpinner" style="display:none;">⟳</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <div class="result-panel" id="resultPanel">
+        <div class="result-placeholder" id="resultPlaceholder">
+          <div class="placeholder-icon">🏠</div>
+          <p>Fill in the property details and click <strong>Predict House Price</strong> to see the AI valuation</p>
+        </div>
+
+        <div class="result-content" id="resultContent" style="display:none;">
+          <!-- Price Card -->
+          <div class="price-card">
+            <div class="price-label">Estimated Market Value</div>
+            <div class="price-main" id="priceMain">$0</div>
+            <div class="price-range" id="priceRange">Range: $0 — $0</div>
+            <div class="price-psf" id="pricePsf">&#8377;0 / sq.ft.</div>
+          </div>
+
+          <!-- Confidence Meter -->
+          <div class="confidence-section">
+            <div class="conf-label">Model Confidence</div>
+            <div class="conf-bar-bg">
+              <div class="conf-bar-fill" id="confBar" style="width:85%"></div>
+            </div>
+            <div class="conf-pct">85%</div>
+          </div>
+
+          <!-- Model Info -->
+          <div class="model-badge" id="modelBadge">
+            <span>⚡ Joint Self-Attention Network</span>
+            <span id="maeBadge" class="mae-info"></span>
+          </div>
+
+          <!-- Attention Charts -->
+          <div class="attn-section">
+            <h4>🔍 Attention-Based Feature Importance</h4>
+            <div class="chart-tabs">
+              <button class="tab-btn active" onclick="switchTab('num')">Numerical</button>
+              <button class="tab-btn" onclick="switchTab('cat')">Categorical</button>
+            </div>
+            <div class="chart-container">
+              <canvas id="attnChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="result-error" id="resultError" style="display:none;">
+          <div class="error-icon">⚠️</div>
+          <p id="errorMsg">Something went wrong.</p>
+          <button onclick="retrain()" class="retrain-btn">🔁 Train Model</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ DASHBOARD ══════════════════════════ -->
+<section id="dashboard" class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <h2>📊 Dataset Dashboard</h2>
+      <p>Real-time analytics on the housing dataset</p>
+      <button class="load-btn" onclick="loadDashboard()">📥 Load Analytics</button>
+    </div>
+
+    <div class="stats-grid" id="statsGrid" style="display:none;">
+      <div class="stat-card">
+        <div class="stat-icon">🏠</div>
+        <div class="stat-val" id="statTotal">—</div>
+        <div class="stat-lbl">Total Records</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-val" id="statAvg">—</div>
+        <div class="stat-lbl">Average Price</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📉</div>
+        <div class="stat-val" id="statMin">—</div>
+        <div class="stat-lbl">Min Price</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-val" id="statMax">—</div>
+        <div class="stat-lbl">Max Price</div>
+      </div>
+    </div>
+
+    <div class="charts-grid" id="chartsGrid" style="display:none;">
+      <div class="chart-card">
+        <h3>Price Distribution</h3>
+        <canvas id="distChart" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Avg Price by City</h3>
+        <canvas id="cityChart" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Price by Property Type</h3>
+        <canvas id="typeChart" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Feature Correlations with Price</h3>
+        <canvas id="corrChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ MODEL INFO ══════════════════════════ -->
+<section id="model-info" class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>🧠 Model Architecture</h2>
+      <p>Joint Self-Attention Network for Heterogeneous Data Analysis</p>
+    </div>
+    <div class="arch-cards">
+      <div class="arch-info-card">
+        <div class="arch-num">01</div>
+        <h3>Feature Tokenization</h3>
+        <p>Each numerical feature is projected into a <em>d_model=64</em> dimensional token via a learnable linear projection. Categorical features are embedded using dedicated Embedding layers with vocabulary sizes matching dataset cardinality.</p>
+      </div>
+      <div class="arch-info-card">
+        <div class="arch-num">02</div>
+        <h3>Intra-Modal Self-Attention</h3>
+        <p>Two stacked Multi-Head Self-Attention (MHSA) blocks process the numerical token sequence and categorical token sequence independently. Each block uses <em>4 attention heads</em> and residual connections with LayerNorm.</p>
+      </div>
+      <div class="arch-info-card">
+        <div class="arch-num">03</div>
+        <h3>Joint Cross-Attention</h3>
+        <p>The inter-modal fusion stage: numerical tokens query over categorical keys/values, and categorical tokens query over numerical keys/values — forming bidirectional joint self-attention that captures cross-modal dependencies.</p>
+      </div>
+      <div class="arch-info-card">
+        <div class="arch-num">04</div>
+        <h3>Regression Head</h3>
+        <p>Both fused streams are mean-pooled and concatenated into a <em>128-dim</em> vector, then passed through a 3-layer MLP (256→128→64→1) with GELU activations and dropout for robust regression.</p>
+      </div>
+    </div>
+
+    <div class="tech-stack">
+      <h3>Technology Stack</h3>
+      <div class="tech-grid">
+        <div class="tech-item"><span>🔥</span> PyTorch 2.0</div>
+        <div class="tech-item"><span>🌐</span> Flask 2.3</div>
+        <div class="tech-item"><span>🐼</span> Pandas</div>
+        <div class="tech-item"><span>🔢</span> NumPy</div>
+        <div class="tech-item"><span>⚙️</span> Scikit-learn</div>
+        <div class="tech-item"><span>📊</span> Chart.js</div>
+        <div class="tech-item"><span>💾</span> Joblib</div>
+        <div class="tech-item"><span>🧮</span> Attention Mechanism</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ TRAINING ══════════════════════════ -->
+<section id="training" class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <h2>⚡ Model Training</h2>
+      <p>View training history or retrain the model</p>
+    </div>
+
+    <div class="training-controls">
+      <button class="load-btn" onclick="loadHistory()">📈 Load Training History</button>
+      <button class="retrain-btn-main" onclick="retrain()" id="retrainBtn">🔁 Retrain Model</button>
+    </div>
+
+    <div id="trainingStatus" class="training-status" style="display:none;"></div>
+
+    <div class="train-charts" id="trainChartsArea" style="display:none;">
+      <div class="chart-card">
+        <h3>Training & Validation Loss</h3>
+        <canvas id="lossChart" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Validation MAE ($)</h3>
+        <canvas id="maeChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ FOOTER ══════════════════════════ -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">🏠 HousePriceAI</div>
+    <p>Deep Learning House Price Prediction • Joint Self-Attention Mechanism • Heterogeneous Data Analysis</p>
+    <p class="footer-tech">Built with PyTorch · Flask · Chart.js · Python</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

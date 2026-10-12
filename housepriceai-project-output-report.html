@@ -1,0 +1,351 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>HousePriceAI — Output Report</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#273549;--card:#1e293b;
+  --border:#334155;--text:#f1f5f9;--muted:#94a3b8;--faint:#64748b;
+  --primary:#4f46e5;--secondary:#0ea5e9;--success:#10b981;
+  --accent:#f59e0b;--danger:#ef4444;--purple:#a78bfa;
+  --radius:12px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+a{color:var(--secondary);text-decoration:none}
+/* ── HEADER ── */
+.header{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%);padding:48px 32px;text-align:center;border-bottom:1px solid var(--border)}
+.header h1{font-size:36px;font-weight:800;background:linear-gradient(135deg,#e0e7ff,#a5b4fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+.header p{color:var(--muted);font-size:15px;margin-bottom:6px}
+.badge-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px}
+.badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(79,70,229,0.2);border:1px solid rgba(79,70,229,0.4);color:#a5b4fc}
+.badge.green{background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);color:#6ee7b7}
+.badge.blue{background:rgba(14,165,233,0.15);border-color:rgba(14,165,233,0.4);color:#7dd3fc}
+/* ── STATUS ── */
+.status-bar{display:flex;justify-content:center;gap:32px;padding:16px 32px;background:rgba(16,185,129,0.08);border-bottom:1px solid rgba(16,185,129,0.2)}
+.status-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success)}
+/* ── CONTAINER ── */
+.container{max-width:960px;margin:0 auto;padding:40px 24px}
+/* ── SECTION ── */
+.section{margin-bottom:48px}
+.section-title{font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+/* ── PREDICTION CARDS ── */
+.pred-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.pred-grid{grid-template-columns:1fr}}
+.pred-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.pred-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pred-card.delhi::before{background:linear-gradient(90deg,#4f46e5,#818cf8)}
+.pred-card.maha::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.pred-card.karn::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.pred-state{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--faint);margin-bottom:4px}
+.pred-label{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px}
+.pred-price{font-size:28px;font-weight:800;background:linear-gradient(135deg,#4ade80,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-bottom:4px}
+.pred-sub{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:10px}
+.pred-range{font-size:11px;color:var(--faint);margin-bottom:8px}
+.pred-meta{display:flex;gap:8px;flex-wrap:wrap}
+.pred-tag{font-size:11px;padding:2px 8px;border-radius:4px;background:var(--bg3);color:var(--muted);font-weight:600}
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
+.stat-icon{font-size:26px;margin-bottom:6px}
+.stat-val{font-size:22px;font-weight:800;color:var(--text);margin-bottom:2px}
+.stat-lbl{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em}
+/* ── ARCH CARDS ── */
+.arch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:600px){.arch-grid{grid-template-columns:1fr}}
+.arch-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;gap:14px;align-items:flex-start}
+.arch-num{font-size:32px;font-weight:900;color:rgba(79,70,229,0.25);line-height:1;flex-shrink:0;width:36px}
+.arch-body h4{font-size:13px;font-weight:700;color:var(--secondary);margin-bottom:5px}
+.arch-body p{font-size:12px;color:var(--faint);line-height:1.6}
+.arch-body em{color:var(--accent);font-style:normal;font-weight:700}
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;padding:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px}
+.flow-box{padding:10px 16px;border-radius:8px;font-size:12px;font-weight:700;text-align:center;line-height:1.4}
+.flow-box small{display:block;font-weight:400;font-size:10px;margin-top:2px}
+.flow-arrow{font-size:18px;color:var(--border);padding:0 4px}
+.fnum{background:rgba(56,189,248,0.12);border:1px solid #38bdf8;color:#38bdf8}
+.fcat{background:rgba(167,139,250,0.12);border:1px solid #a78bfa;color:#a78bfa}
+.fattn{background:rgba(251,146,60,0.12);border:1px solid #fb923c;color:#fb923c}
+.fcross{background:rgba(52,211,153,0.12);border:1px solid #34d399;color:#34d399}
+.fhead{background:rgba(244,114,182,0.12);border:1px solid #f472b6;color:#f472b6}
+/* ── STATE TABLE ── */
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:0.07em;color:var(--faint);font-weight:700}
+td{padding:10px 14px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+td.price{color:var(--success);font-weight:700}
+td.state{color:var(--text);font-weight:600}
+/* ── FILES ── */
+.file-tree{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;font-family:'Consolas','Courier New',monospace;font-size:12px;color:var(--muted);line-height:1.9}
+.file-tree .dir{color:#7dd3fc;font-weight:700}
+.file-tree .py{color:#a5b4fc}
+.file-tree .other{color:#94a3b8}
+.file-tree .highlight{color:var(--accent);font-weight:700}
+/* ── HOW TO RUN ── */
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body{font-size:13px;color:var(--muted)}
+.step-body strong{color:var(--text);display:block;margin-bottom:2px}
+code{background:var(--bg3);padding:2px 7px;border-radius:4px;font-family:'Consolas',monospace;font-size:12px;color:#7dd3fc}
+.url-box{background:var(--bg3);border:2px solid var(--primary);border-radius:10px;padding:16px 24px;text-align:center;font-size:22px;font-weight:800;color:#a5b4fc;letter-spacing:0.02em;margin:20px 0}
+/* ── TECH STACK ── */
+.tech-row{display:flex;flex-wrap:wrap;gap:10px}
+.tech{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--muted)}
+/* ── FOOTER ── */
+.footer{border-top:1px solid var(--border);padding:28px;text-align:center;color:var(--faint);font-size:12px;margin-top:32px}
+</style>
+</head>
+<body>
+
+
+<div class="header">
+  <h1>🏠 HousePriceAI — Output Report</h1>
+  <p>Deep Learning House Price Prediction Using Heterogeneous Data Analysis</p>
+  <p>Along with Joint Self-Attention Mechanism</p>
+  <div class="badge-row">
+    <span class="badge">PyTorch 2.14</span>
+    <span class="badge">Flask 3.1</span>
+    <span class="badge">Joint Self-Attention</span>
+    <span class="badge green">✅ Model Trained</span>
+    <span class="badge green">✅ Server Live</span>
+    <span class="badge blue">🇮🇳 Indian States</span>
+  </div>
+</div>
+
+
+<div class="status-bar">
+  <div class="status-item"><span class="dot"></span> Server Running</div>
+  <div class="status-item"><span class="dot"></span> Model Loaded (CPU)</div>
+  <div class="status-item"><span class="dot"></span> 3,000 Records</div>
+  <div class="status-item"><span class="dot"></span> 177,857 Parameters</div>
+</div>
+
+<div class="container">
+
+  
+  <div class="section">
+    <div class="section-title">🌐 Live Application Link</div>
+    <div class="url-box">http://localhost:5000</div>
+    <p style="text-align:center;color:var(--faint);font-size:13px">Open in Chrome / Edge / Firefox — works while server is running on your PC</p>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">🔮 Live Prediction Results — Indian Properties</div>
+    <div class="pred-grid">
+      <div class="pred-card delhi">
+        <div class="pred-state">🏛️ Delhi (NCR)</div>
+        <div class="pred-label">3 BHK Apartment — Connaught Place</div>
+        <div class="pred-price">₹2.57 Crore</div>
+        <div class="pred-sub">₹2,57,07,322 total</div>
+        <div class="pred-range">Range: ₹2.36 Cr — ₹2.78 Cr</div>
+        <div class="pred-meta">
+          <span class="pred-tag">1800 sq.ft.</span>
+          <span class="pred-tag">A+ School</span>
+          <span class="pred-tag">Covered Parking</span>
+          <span class="pred-tag">Excellent</span>
+        </div>
+      </div>
+      <div class="pred-card maha">
+        <div class="pred-state">🌆 Maharashtra (Pune)</div>
+        <div class="pred-label">4 BHK Villa — Baner</div>
+        <div class="pred-price">₹2.31 Crore</div>
+        <div class="pred-sub">₹2,31,13,048 total</div>
+        <div class="pred-range">Range: ₹2.13 Cr — ₹2.50 Cr</div>
+        <div class="pred-meta">
+          <span class="pred-tag">3000 sq.ft.</span>
+          <span class="pred-tag">A School</span>
+          <span class="pred-tag">Swimming Pool</span>
+          <span class="pred-tag">Good</span>
+        </div>
+      </div>
+      <div class="pred-card karn">
+        <div class="pred-state">🌿 Karnataka (Bengaluru)</div>
+        <div class="pred-label">2 BHK Apartment — Whitefield</div>
+        <div class="pred-price">₹1.29 Crore</div>
+        <div class="pred-sub">₹1,29,39,250 total</div>
+        <div class="pred-range">Range: ₹1.19 Cr — ₹1.40 Cr</div>
+        <div class="pred-meta">
+          <span class="pred-tag">1200 sq.ft.</span>
+          <span class="pred-tag">B+ School</span>
+          <span class="pred-tag">Covered Parking</span>
+          <span class="pred-tag">Good</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">📊 Dataset Statistics</div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-icon">🏠</div><div class="stat-val">3,000</div><div class="stat-lbl">Total Records</div></div>
+      <div class="stat-box"><div class="stat-icon">💰</div><div class="stat-val">₹77.2 L</div><div class="stat-lbl">Avg Price</div></div>
+      <div class="stat-box"><div class="stat-icon">🗺️</div><div class="stat-val">10</div><div class="stat-lbl">Indian States</div></div>
+      <div class="stat-box"><div class="stat-icon">🧠</div><div class="stat-val">177,857</div><div class="stat-lbl">Model Params</div></div>
+    </div>
+
+    
+    <table>
+      <thead>
+        <tr><th>🗺️ State</th><th>Major Cities/Areas</th><th>Price Range</th><th>Avg Price</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="state">Delhi</td><td>Connaught Place, Dwarka, Rohini</td><td>₹1.5 – 5 Cr</td><td class="price">₹2.5 – 3.5 Cr</td></tr>
+        <tr><td class="state">Maharashtra</td><td>Juhu, Baner, Marine Drive</td><td>₹80 L – 4 Cr</td><td class="price">₹1.8 – 2.8 Cr</td></tr>
+        <tr><td class="state">Karnataka</td><td>Whitefield, Koramangala</td><td>₹60 L – 2.5 Cr</td><td class="price">₹1.2 – 1.8 Cr</td></tr>
+        <tr><td class="state">Tamil Nadu</td><td>Anna Nagar, T. Nagar</td><td>₹55 L – 2 Cr</td><td class="price">₹1.0 – 1.6 Cr</td></tr>
+        <tr><td class="state">Telangana</td><td>Banjara Hills, Hitech City</td><td>₹65 L – 2.8 Cr</td><td class="price">₹1.3 – 2.0 Cr</td></tr>
+        <tr><td class="state">Gujarat</td><td>SG Highway, Bopal</td><td>₹40 L – 1.5 Cr</td><td class="price">₹80 L – 1.2 Cr</td></tr>
+        <tr><td class="state">West Bengal</td><td>Salt Lake, Rajarhat</td><td>₹45 L – 1.8 Cr</td><td class="price">₹90 L – 1.3 Cr</td></tr>
+        <tr><td class="state">Kerala</td><td>Kakkanad, Panampilly Nagar</td><td>₹50 L – 1.8 Cr</td><td class="price">₹95 L – 1.4 Cr</td></tr>
+        <tr><td class="state">Rajasthan</td><td>Vaishali Nagar, Malviya Nagar</td><td>₹35 L – 1.3 Cr</td><td class="price">₹70 L – 1.0 Cr</td></tr>
+        <tr><td class="state">Uttar Pradesh</td><td>Gomti Nagar, Sector 44</td><td>₹30 L – 1.2 Cr</td><td class="price">₹65 L – 95 L</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">🧠 Joint Self-Attention Model Architecture</div>
+
+    <div class="flow">
+      <div class="flow-box fnum">📊 Numerical<br /><small>17 features</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fattn">🔄 Self-Attn ×2<br /><small>Intra-modal</small></div>
+      <div class="flow-arrow">↘</div>
+      <div class="flow-box fcross" style="margin:0 8px">⚡ Joint Cross-Attention<br /><small>Inter-modal Fusion</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box fhead">🧠 MLP Head<br /><small>→ ₹ Price</small></div>
+      <div style="position:absolute"></div>
+    </div>
+    <div style="text-align:center;color:var(--faint);font-size:12px;margin-bottom:20px">
+      Categorical: 6 embeddings → Self-Attn ×2 ↗ (feeds into Cross-Attention above)
+    </div>
+
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-num">01</div>
+        <div class="arch-body">
+          <h4>Feature Tokenization</h4>
+          <p>Each numerical feature projected to <em>d_model=64</em> token. Categorical features embedded via learnable <em>Embedding layers</em>.</p>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-num">02</div>
+        <div class="arch-body">
+          <h4>Intra-Modal Self-Attention</h4>
+          <p>Two stacked <em>Multi-Head Self-Attention</em> blocks (4 heads each) process numerical and categorical token sequences independently.</p>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-num">03</div>
+        <div class="arch-body">
+          <h4>Joint Cross-Attention (Fusion)</h4>
+          <p>Bidirectional cross-attention: numerical queries over categorical KV, and categorical queries over numerical KV — <em>inter-modal fusion</em>.</p>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-num">04</div>
+        <div class="arch-body">
+          <h4>MLP Regression Head</h4>
+          <p>Mean-pool both streams → concat → <em>256→128→64→1</em> MLP with GELU activations → final price (INR).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">📁 Project Structure</div>
+    <div class="file-tree">
+<span class="dir">D:\HOUSE PRICE PREDICTION\</span>
+├── <span class="highlight py">app.py</span>                        ← Flask backend (predict, stats, train APIs)
+├── <span class="highlight py">train.py</span>                      ← Model training script
+├── <span class="highlight py">run.py</span>                        ← One-click setup + run
+├── <span class="highlight other">requirements.txt</span>              ← Python dependencies
+├── <span class="highlight other">start_server.bat</span>             ← Double-click to start server
+├── <span class="dir">utils/</span>
+│   ├── <span class="py">data_generator.py</span>          ← 3000 Indian property records generator
+│   └── <span class="py">feature_engineering.py</span>     ← Scaler, encoder, derived features
+├── <span class="dir">models/</span>
+│   ├── <span class="highlight py">joint_attention_model.py</span>  ← Joint Self-Attention PyTorch model
+│   ├── <span class="highlight other">best_model.pt</span>              ← Trained weights (best checkpoint)
+│   ├── <span class="other">model_meta.json</span>             ← Architecture metadata
+│   └── <span class="other">feature_engineer.pkl</span>        ← Fitted scaler/encoder
+├── <span class="dir">templates/</span>
+│   └── <span class="py">index.html</span>                  ← Full responsive web UI
+├── <span class="dir">static/</span>
+│   ├── <span class="dir">css/</span><span class="other">style.css</span>               ← Dark theme CSS
+│   └── <span class="dir">js/</span><span class="other">app.js</span>                 ← Chart.js + prediction logic
+└── <span class="dir">data/</span>
+    └── <span class="other">house_data.csv</span>              ← Generated dataset (3000 rows)
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">🚀 How to Run</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Open project folder</strong>
+          Navigate to <code>D:\HOUSE PRICE PREDICTION\</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Start the server</strong>
+          Double-click <code>start_server.bat</code> — OR — run <code>python app.py</code> in terminal
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Open browser</strong>
+          Go to <code>http://localhost:5000</code> in Chrome / Edge / Firefox
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Predict house price</strong>
+          Select Indian State, locality, BHK, property type → click <code>Predict House Price</code> → get ₹ result in Crores/Lakhs
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="section">
+    <div class="section-title">⚙️ Technology Stack</div>
+    <div class="tech-row">
+      <div class="tech">🔥 PyTorch 2.14 (CPU)</div>
+      <div class="tech">🌐 Flask 3.1</div>
+      <div class="tech">🐼 Pandas</div>
+      <div class="tech">🔢 NumPy</div>
+      <div class="tech">⚙️ Scikit-learn</div>
+      <div class="tech">💾 Joblib</div>
+      <div class="tech">📊 Chart.js 4.4</div>
+      <div class="tech">🧮 Self-Attention</div>
+      <div class="tech">⚡ Cross-Attention</div>
+      <div class="tech">🇮🇳 Indian Rupee (INR)</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>HousePriceAI — Deep Learning House Price Prediction • Joint Self-Attention Mechanism • Indian States Dataset</p>
+  <p style="margin-top:6px">Made with IBM Bob</p>
+</div>
+
+</body>
+</html>

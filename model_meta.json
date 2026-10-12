@@ -1,0 +1,35 @@
+{
+  "n_num_features": 17,
+  "cat_dims": {
+    "city": 10,
+    "neighborhood": 10,
+    "property_type": 5,
+    "condition": 4,
+    "garage_type": 4,
+    "school_rating": 6
+  },
+  "feature_names": [
+    "sqft",
+    "bedrooms",
+    "bathrooms",
+    "year_built",
+    "lot_size",
+    "floors",
+    "has_pool",
+    "has_basement",
+    "distance_cbd",
+    "crime_rate",
+    "walk_score",
+    "renovation_year",
+    "age",
+    "renovation_age",
+    "price_per_sqft_est",
+    "bed_bath_ratio",
+    "total_rooms"
+  ],
+  "d_model": 64,
+  "n_heads": 4,
+  "n_self_attn_layers": 2,
+  "best_val_loss": 0.01522,
+  "final_val_mae": 3819132.0
+}
